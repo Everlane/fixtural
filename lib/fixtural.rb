@@ -1,8 +1,11 @@
 # require 'fog'
 
 require 'fixtural/version'
+
+require 'fixtural/adapter'
 require 'fixtural/configuration'
 require 'fixtural/downloader'
+require 'fixtural/output'
 
 module Fixtural
   # Initialize module instance variables

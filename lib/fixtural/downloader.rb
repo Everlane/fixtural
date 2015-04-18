@@ -14,7 +14,7 @@ module Fixtural
 
     def run!
       db_uri = URI.parse(@configuration.remote_db)
-      @adapter = (adapter_for_uri db_uri).new(self, db_uri)
+      @adapter = (Fixtural.adapter_for_uri db_uri).new(self, db_uri)
       # Actually connect to the database and figure out which tables we need
       # to download
       @adapter.connect!
@@ -29,39 +29,11 @@ module Fixtural
       tables.each_with_index do |table, index|
         path = File.join(@download_directory, "#{table}.yml")
         File.open(path, 'w') do |fd|
-          writer = YAMLOutputWriter.new(fd)
+          writer = ::Fixtural::YAMLOutputWriter.new(fd)
           download_table table, writer
           writer.done
         end
         puts "- Downloaded #{table} (#{index.to_s}/#{total.to_s})"
-      end
-    end
-
-    class YAMLOutputWriter
-      def initialize io
-        @io = io
-        @io.write "---\n"
-        @checked = false
-      end
-      def write object
-        # Convert the index-object to YAML
-        data = object.to_yaml
-        # Check conformance of the objects if we haven't already
-        if !@checked
-          detect_slicing_offsets data
-          @checked = true
-        end
-        # Figure out which parts we need to chop off
-        data = data.slice(@head_offset, data.length - @tail_offset)
-        @io.write data
-      end
-      def detect_slicing_offsets data
-        @strip_head = (data =~ /^---\n/) ? true : false
-        @strip_tail = (data =~ /\.\.\.\n$/) ? true: false
-        @head_offset = @strip_head ? 4 : 0
-        @tail_offset = (@strip_tail ? 4 : 0) + @head_offset
-      end
-      def done
       end
     end
 
@@ -74,48 +46,6 @@ module Fixtural
         index += 1
       end
     end
-
-    def adapter_for_uri uri
-      if uri.scheme == 'mysql'
-        require 'mysql2'
-        return MySQLAdapter
-      else
-        raise "No adapter found for scheme '#{uri.scheme}'"
-      end
-    end
-
-    class MySQLAdapter
-      SKIP_TABLES = ['schema_migrations']
-
-      def initialize downloader, uri
-        @downloader = downloader
-        @uri        = uri
-      end
-      def connect!
-        opts = {
-          host: @uri.host,
-          database: @uri.path.sub(/^\//, '')
-        }
-        if @uri.userinfo
-          username, password = @uri.userinfo.split(':', 2)
-          opts[:username] = username
-          opts[:password] = password if password
-        end
-        # TODO: Parse more options from the URI
-        @client = Mysql2::Client.new opts
-      end
-      def guess_tables
-        results = @client.query 'SHOW TABLES;', as: :array
-        return results.to_a.map {|t| t.first }.select {|t| !SKIP_TABLES.include? t }
-      end
-
-      def query_table table, &block
-        results = @client.query "SELECT * FROM #{table};"
-        results.each do |row|
-          block.call row
-        end
-      end
-    end# MySQLAdapter
 
   end# Downloader
 end# Fixtural
