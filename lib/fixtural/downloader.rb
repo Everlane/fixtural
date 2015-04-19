@@ -23,23 +23,8 @@ module Fixtural
       # to download
       @adapter.connect!
 
-      if @configuration.download_tables
-        tables = @configuration.download_tables
-      else
-        tables = @adapter.guess_tables
-      end
-
-
-      # Temporarily convert the tables to a Set
-      tables = tables.to_set
-      if @configuration.allow_tables
-        # Only allow tables tables that we specify
-        tables = tables.intersection @configuration.allow_tables
-      end
-      if @configuration.disallow_tables
-        # Remove any tables that we don't want included
-        tables = tables.difference @configuration.disallow_tables
-      end
+      # Figure out the tables we need to download
+      tables = compute_table_list()
 
       total = tables.length
       puts "Downloading #{total.to_s} tables:"
@@ -54,6 +39,29 @@ module Fixtural
           writer.done
         end
       end
+    end
+
+    # Computes which tables to download from the remote; either via
+    # configuration or by querying the remote for its actual list
+    # of tables.
+    def compute_table_list
+      if @configuration.download_tables
+        # If the list is explicitly set then use that
+        tables = @configuration.download_tables.to_set
+      else
+        # Otherwise guess via the tables actually in the database
+        tables = @adapter.guess_tables.to_set
+
+        if @configuration.allow_tables
+          # Only allow tables tables that we specify
+          tables = tables.intersection @configuration.allow_tables
+        end
+        if @configuration.disallow_tables
+          # Remove any tables that we don't want included
+          tables = tables.difference @configuration.disallow_tables
+        end
+      end
+      return tables
     end
 
     def download_table table, output_writer, progressbar

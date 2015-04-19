@@ -30,6 +30,9 @@ module Fixtural
       # TODO: Parse more options from the URI
       @client = Mysql2::Client.new opts
     end
+
+    # Look up all the tables from the database; skip any tables set in the
+    # `SKIP_TABLES` array.
     def guess_tables
       results = @client.query 'SHOW TABLES;', as: :array
       return results.to_a.map {|t| t.first }.select {|t| !SKIP_TABLES.include? t }
