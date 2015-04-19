@@ -1,5 +1,22 @@
 
 module Fixtural
+
+  class OutputStore
+    def open path, &block
+      raise NotImplementedError
+    end
+  end
+
+  class FileOutputStore
+    def open path, &block
+      fd = File.open(path, 'w')
+      if block
+        block.call fd
+        fd.close
+      end
+    end
+  end
+
   class OutputWriter
     def write object
       raise NotImplementedError
