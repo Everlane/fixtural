@@ -10,7 +10,7 @@ namespace :fixtural do
 
   desc 'Download database into local storage'
   task :download do
-    downloader = Fixtural::Downloader.new(Fixtural.configuration)
+    downloader = Fixtural.setup_downloader
     downloader.run!
   end
 

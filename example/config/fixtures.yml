@@ -7,15 +7,26 @@ allow_tables:
 disallow_tables:
   - users
 
-output:
-  store: local
-  path:  'test/fixtures'
+# output:
+#   store: local
+#   path:  'test/fixtures'
+
+remote_s3: &shared_s3
+  store: S3
+  access_key_id: 'foo'
+  secret_access_key: 'bar'
+  path: 'fixtures'
 
 environments:
+  # remote DB -> S3 fixtures
   admin:
+    # `input` will be supplied by `REMOTE_DB` environment variable
+    output: *shared_s3
+
+  # S3 -> local fixtures files
+  default:
+    input: *shared_s3
     output:
-      store: S3
-      access_key_id: 'foo'
-      secret_access_key: 'bar'
-      path: 'fixtures'
+      store: local
+      path: 'test/fixtures'
 

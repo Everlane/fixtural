@@ -5,7 +5,7 @@ require 'psych'
 require 'ruby-progressbar'
 
 module Fixtural
-  class Downloader
+  class DatabaseDownloader
     def initialize configuration
       @configuration = configuration
       # Unpack and check some stuff from the config
@@ -80,7 +80,33 @@ module Fixtural
         progressbar.increment
       end
     end
+  end# DatabaseDownloader
 
-  end# Downloader
+
+  class FileDownloader
+    def initialize input_store, output_store
+      @input  = input_store
+      @output = output_store
+    end
+
+    def run!
+      files = @input.files
+
+      total = files.length
+      index = 0
+      puts "Downloading #{total.to_s} files:"
+      files.each do |name|
+        # Skip files not ending with .yml
+        next unless name =~ /\.yml$/
+        # Then copy from the input store to the output store
+        @output.open name do |fd|
+          fd.write @input.read(name)
+        end
+        puts "- #{name} (#{(index+1).to_s}/#{total.to_s})"
+        index += 1
+      end
+    end
+  end# FileDownloader
+
 end# Fixtural
 

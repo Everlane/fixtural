@@ -7,6 +7,8 @@ module Fixtural
     # Properties for downloading from the remote
     attr_accessor :remote_db, :download_tables,
                   :allow_tables, :disallow_tables
+    # Or for downloading form a filesystem
+    attr_accessor :input_store
 
     DOWNLOAD_PROPERTIES = [
       ['Remote database', 'remote_db'],

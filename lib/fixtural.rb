@@ -6,6 +6,7 @@ require 'fixtural/version'
 require 'fixtural/adapter'
 require 'fixtural/configuration'
 require 'fixtural/downloader'
+require 'fixtural/input'
 require 'fixtural/output'
 
 module Fixtural
@@ -51,7 +52,7 @@ module Fixtural
       # override that with environment-specific output store
       # configurations below.
       if config['output']
-        setup_output_store config['output']
+        configure_output_store config['output']
       end
 
       env = ENV['FIXTURAL_ENV']
@@ -59,14 +60,15 @@ module Fixtural
       if env && environments
         current_env = environments[env]
         if current_env
-          setup_output_store(current_env['output']) if current_env['output']
+          configure_output_store(current_env['output']) if current_env['output']
+          configure_input_store(current_env['input']) if current_env['input']
         end
         puts "Using environment '#{env}'"
       end
     end
 
-    def setup_output_store output_config
-      store  = output_config['store']
+    def configure_output_store output_config
+      store = output_config['store']
       case store
       when 'local'
         @configuration.output_store = FileOutputStore.new output_config['path']
@@ -76,9 +78,45 @@ module Fixtural
         raise "Don't know how to configure output store of type '#{store}'"
       end
     end
+    def configure_input_store input_config
+      store = input_config['store']
+      case store
+      when 'local'
+        @configuration.input_store = FileInputStore.new input_config['path']
+      when 'S3'
+        @configuration.input_store = S3InputStore.new input_config
+      else
+        raise "Don't know how to configure input store of type '#{store}'"
+      end
+    end
 
     def configure
       @configuration.remote_db = ENV['REMOTE_DB'] if ENV['REMOTE_DB']
+    end
+
+    def setup_downloader
+      if @configuration.remote_db
+        return DatabaseDownloader.new @configuration
+      elsif @configuration.input_store
+        return FileDownloader.new @configuration.input_store, @configuration.output_store
+      else
+        raise 'No remote database or file store from which to download'
+      end
+    end
+
+
+    def create_s3_storage opts
+      # Convert keys to symbols
+      opts = opts.inject({}) do |acc, pair|
+        key, value = pair
+        acc[key.to_sym] = value
+        acc
+      end
+      opts.delete :store
+      opts[:provider]              = 'AWS'
+      opts[:aws_access_key_id]     = opts.delete :access_key_id
+      opts[:aws_secret_access_key] = opts.delete :secret_access_key
+      return Fog::Storage.new opts
     end
 
   end# << self
