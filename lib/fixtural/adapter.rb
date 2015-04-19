@@ -6,6 +6,9 @@ module Fixtural
     if uri.scheme == 'mysql'
       require 'mysql2'
       return MySQLAdapter
+    elsif uri.scheme == 'sqlite3'
+      require 'sqlite3'
+      return SQLiteAdapter
     else
       raise "No adapter found for scheme '#{uri.scheme}'"
     end
@@ -38,6 +41,24 @@ module Fixtural
       end
   end
 
+  class SQLiteAdapter < Adapter
+    def initialize downloader, uri
+      str = uri.to_s
+      path = str.sub /^sqlite3:\/\//, ''
+      @path = path
+    end
+    def connect
+      @client = SQLite3::Database.new @path
+    end
+    def guess_tables
+      results = @client.execute "SELECT name FROM sqlite_master WHERE type = 'table';"
+      return results.to_a.map {|r| r[0] }
+    end
+    def query_table table
+      @client.execute "SELECT * FROM #{table};"
+    end
+  end
+
   class MySQLAdapter < Adapter
 
     def initialize downloader, uri
@@ -61,7 +82,7 @@ module Fixtural
 
     def guess_tables
       results = @client.query 'SHOW TABLES;', as: :array
-      filter_tables results.to_a.map {|t| t.first }
+      filter_tables results.to_a.map {|r| r[0] }
     end
 
     def query_table table
