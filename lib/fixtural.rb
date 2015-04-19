@@ -47,6 +47,9 @@ module Fixtural
         end
       end
 
+      # Default to the top-level-configured output store (if present);
+      # override that with environment-specific output store
+      # configurations below.
       if config['output']
         setup_output_store config['output']
       end
@@ -67,6 +70,8 @@ module Fixtural
       case store
       when 'local'
         @configuration.output_store = FileOutputStore.new output_config['path']
+      when 'S3'
+        @configuration.output_store = S3OutputStore.new output_config
       else
         raise "Don't know how to configure output store of type '#{store}'"
       end

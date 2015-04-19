@@ -1,3 +1,7 @@
+require 'tempfile'
+
+require 'fog/core'
+require 'fog/aws'
 
 module Fixtural
 
@@ -20,6 +24,47 @@ module Fixtural
       end
     end
   end
+
+  class S3OutputStore < OutputStore
+    def initialize opts
+      # Convert keys to symbols
+      opts = opts.inject({}) do |acc, pair|
+        key, value = pair
+        acc[key.to_sym] = value
+        acc
+      end
+      opts.delete :store
+      opts[:provider]              = 'AWS'
+      opts[:aws_access_key_id]     = opts.delete :access_key_id
+      opts[:aws_secret_access_key] = opts.delete :secret_access_key
+      @path = opts.delete :path
+      @connection = Fog::Storage.new(opts)
+
+      raise 'Missing path for fixtures' unless @path
+
+      @directory = @connection.directories.get(@path)
+      # Create directory if it doesn't exist
+      if @directory.nil?
+        @directory = @connection.directories.create key: @path
+      end
+    end
+    def open path, &block
+      raise 'Block required' unless block
+      temp = Tempfile.new path
+      begin
+        block.call temp
+        # Upload the file
+        file = @directory.files.create(
+          key: path,
+          body: temp
+        )
+      ensure
+        # Always cleanup the temp resource
+        temp.close
+        temp.unlink
+      end
+    end# open
+  end# S3OutputStore
 
 
   class OutputWriter

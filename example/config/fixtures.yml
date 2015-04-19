@@ -1,7 +1,7 @@
 
 allow_tables:
   - events
-  - products
+  # - products
   - reports
 
 disallow_tables:
@@ -14,6 +14,8 @@ output:
 environments:
   admin:
     output:
-      store: local
-      path:  'test/fixtures'
+      store: S3
+      access_key_id: 'foo'
+      secret_access_key: 'bar'
+      path: 'fixtures'
 
