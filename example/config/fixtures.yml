@@ -1,0 +1,9 @@
+
+allow_tables:
+  - events
+  - products
+  - reports
+
+disallow_tables:
+  - users
+

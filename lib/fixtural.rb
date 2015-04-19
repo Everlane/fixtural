@@ -1,4 +1,5 @@
 # require 'fog'
+require 'yaml'
 
 require 'fixtural/version'
 
@@ -23,6 +24,17 @@ module Fixtural
         @configuration.download_directory = spec_fixtures_path
       elsif Dir.exist? test_fixtures_path
         @configuration.download_directory = test_fixtures_path
+      end
+
+      # Check for the configuration file
+      configuration_path = File.join(pwd, 'config', 'fixtures.yml')
+      if File.exist? configuration_path
+        config = ::YAML.load_file configuration_path
+        ['allow_tables', 'disallow_tables'].each do |prop|
+          if config[prop]
+            @configuration.send (prop+'=').to_sym, config[prop]
+          end
+        end
       end
     end
 

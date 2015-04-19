@@ -37,9 +37,10 @@ module Fixtural
 
     def query_table table, &block
       results = @client.query "SELECT * FROM #{table};"
-      results.each do |row|
-        block.call row
-      end
+      # results.each do |row|
+      #   block.call row
+      # end
+      return [results.count, results]
     end
   end# MySQLAdapter
 end
