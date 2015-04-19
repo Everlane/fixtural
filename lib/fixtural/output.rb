@@ -1,11 +1,22 @@
 
 module Fixtural
-  class YAMLOutputWriter
+  class OutputWriter
+    def write object
+      raise NotImplementedError
+    end
+    def done
+      raise NotImplementedError
+    end
+  end
+
+  class YAMLOutputWriter < OutputWriter
     def initialize io
       @io = io
       @io.write "---\n"
       @checked = false
     end
+
+    # Write a given `object` to the fixture output stream.
     def write object
       # Convert the index-object to YAML
       data = object.to_yaml
@@ -18,13 +29,18 @@ module Fixtural
       data = data.slice(@head_offset, data.length - @tail_offset)
       @io.write data
     end
-    def detect_slicing_offsets data
-      @strip_head = (data =~ /^---\n/) ? true : false
-      @strip_tail = (data =~ /\.\.\.\n$/) ? true: false
-      @head_offset = @strip_head ? 4 : 0
-      @tail_offset = (@strip_tail ? 4 : 0) + @head_offset
-    end
+
     def done
     end
-  end
-end
+
+    protected
+      def detect_slicing_offsets data
+        @strip_head = (data =~ /^---\n/) ? true : false
+        @strip_tail = (data =~ /\.\.\.\n$/) ? true: false
+        @head_offset = @strip_head ? 4 : 0
+        @tail_offset = (@strip_tail ? 4 : 0) + @head_offset
+      end
+
+  end# YAMLOutputWriter
+end# Fixtural
+

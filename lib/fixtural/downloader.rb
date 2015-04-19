@@ -1,6 +1,7 @@
 require 'set'
 require 'uri'
 require 'psych'
+
 require 'ruby-progressbar'
 
 module Fixtural
@@ -21,7 +22,7 @@ module Fixtural
       @adapter = (Fixtural.adapter_for_uri db_uri).new(self, db_uri)
       # Actually connect to the database and figure out which tables we need
       # to download
-      @adapter.connect!
+      @adapter.connect()
 
       # Figure out the tables we need to download
       tables = compute_table_list()
