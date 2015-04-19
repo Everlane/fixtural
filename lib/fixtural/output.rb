@@ -7,8 +7,12 @@ module Fixtural
     end
   end
 
-  class FileOutputStore
+  class FileOutputStore < OutputStore
+    def initialize root
+      @root = root
+    end
     def open path, &block
+      path = File.join @root, path
       fd = File.open(path, 'w')
       if block
         block.call fd
@@ -16,6 +20,7 @@ module Fixtural
       end
     end
   end
+
 
   class OutputWriter
     def write object

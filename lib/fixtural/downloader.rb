@@ -30,13 +30,13 @@ module Fixtural
       total = tables.length
       puts "Downloading #{total.to_s} tables:"
       # Setup the output store and write tables to it
-      output_store = FileOutputStore.new
+      output_store = @configuration.output_store
       tables.each_with_index do |table, index|
-        path = File.join(@download_directory, "#{table}.yml")
         progressbar = ProgressBar.create(
           format: "- #{table} (#{(index+1).to_s}/#{total.to_s}) (%j%%)"
         )
-        output_store.open(path) do |fd|
+        name = "#{table}.yml"
+        output_store.open(name) do |fd|
           writer = ::Fixtural::YAMLOutputWriter.new(fd)
           download_table table, writer, progressbar
           writer.done
