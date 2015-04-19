@@ -35,12 +35,11 @@ module Fixtural
       return results.to_a.map {|t| t.first }.select {|t| !SKIP_TABLES.include? t }
     end
 
+    # Runs a 'SELECT * ...' on the given `table`. Returns an `Enumerable` with
+    # the results of the query.
     def query_table table, &block
       results = @client.query "SELECT * FROM #{table};"
-      # results.each do |row|
-      #   block.call row
-      # end
-      return [results.count, results]
+      return results
     end
   end# MySQLAdapter
 end

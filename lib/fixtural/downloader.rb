@@ -57,10 +57,10 @@ module Fixtural
     end
 
     def download_table table, output_writer, progressbar
-      length, iterator = @adapter.query_table(table)
-      progressbar.total = length
+      results = @adapter.query_table(table)
+      progressbar.total = results.count
       index = 0
-      iterator.each do |row|
+      results.each do |row|
         data = {}
         data[index] = row
         output_writer.write data
