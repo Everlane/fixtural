@@ -19,8 +19,7 @@ module Fixtural
       raise NotImplementedError
     end
 
-    # Look up all the tables from the database; skip any tables set in the
-    # `SKIP_TABLES` array.
+    # Look up the tables from the database.
     def guess_tables
       raise NotImplementedError
     end
@@ -30,6 +29,13 @@ module Fixtural
     def query_table table
       raise NotImplementedError
     end
+
+    protected
+      # Called by `guess_tables` to filter the resulting table list
+      # according to `SKIP_TABLES`.
+      def filter_tables tables
+        tables.select {|t| !::Fixtural::Adapter::SKIP_TABLES.include? t }
+      end
   end
 
   class MySQLAdapter < Adapter
@@ -55,9 +61,7 @@ module Fixtural
 
     def guess_tables
       results = @client.query 'SHOW TABLES;', as: :array
-      return results.to_a.map {|t| t.first }.select {|t|
-        !::Fixtural::Adapter::SKIP_TABLES.include? t
-      }
+      filter_tables results.to_a.map {|t| t.first }
     end
 
     def query_table table
