@@ -48,14 +48,27 @@ module Fixtural
       end
 
       if config['output']
-        output = config['output']
-        store  = output['store']
-        case store
-        when 'local'
-          @configuration.output_store = FileOutputStore.new output['path']
-        else
-          raise "Don't know how to configure output store of type '#{store}'"
+        setup_output_store config['output']
+      end
+
+      env = ENV['FIXTURAL_ENV']
+      environments = config['environments']
+      if env && environments
+        current_env = environments[env]
+        if current_env
+          setup_output_store(current_env['output']) if current_env['output']
         end
+        puts "Using environment '#{env}'"
+      end
+    end
+
+    def setup_output_store output_config
+      store  = output_config['store']
+      case store
+      when 'local'
+        @configuration.output_store = FileOutputStore.new output_config['path']
+      else
+        raise "Don't know how to configure output store of type '#{store}'"
       end
     end
 

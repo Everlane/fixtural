@@ -11,3 +11,9 @@ output:
   store: local
   path:  'test/fixtures'
 
+environments:
+  admin:
+    output:
+      store: local
+      path:  'test/fixtures'
+

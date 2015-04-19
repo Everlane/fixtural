@@ -1,6 +1,6 @@
 # Fixtural
 
-Fixtural makes it easy to safely download production data into a local fixtures YAML file for easy loading into your local development/test database.
+Fixtural makes it easy to safely download production data into local fixtures YAML files use in development/test databases.
 
 ## Installation and usage
 
@@ -26,6 +26,12 @@ REMOTE_DB=mysql://username:password@host/db rake fixtural:download
 # Fixtures will now be in test/fixtures/ or spec/fixtures/, whichever
 # is found first.
 ```
+
+## TODO
+
+- Additional database adapters (SQLite, PostgreSQL)
+- Downloading fixtures from remote (ie. admin downloads production DB to S3, then users download from S3 to local)
+- Multi-environment support (for the above, so you can do `FIXTURAL_ENV=admin` for privileged downloading)
 
 ### Contributing
 
