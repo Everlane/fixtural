@@ -55,7 +55,16 @@ module Fixtural
       return results.to_a.map {|r| r[0] }
     end
     def query_table table
-      @client.execute "SELECT * FROM #{table};"
+      rows = @client.execute2("SELECT * FROM #{table};").to_a
+      columns = rows.shift
+      return rows.map {|row|
+        val = columns.each_with_index.inject({}) {|acc, pair|
+          key, index = pair
+          acc[key] = row[index]
+          acc
+        }
+        val
+      }
     end
   end
 

@@ -42,7 +42,11 @@ module Fixtural
 
     def read_config_file path
       config = ::YAML.load_file path
-      ['allow_tables', 'disallow_tables'].each do |prop|
+      [
+        'allow_tables',
+        'disallow_tables',
+        'download_directory'
+      ].each do |prop|
         if config[prop]
           @configuration.send (prop+'=').to_sym, config[prop]
         end
