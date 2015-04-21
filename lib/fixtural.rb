@@ -30,7 +30,7 @@ module Fixtural
       # Check for the configuration file
       configuration_path = File.join(pwd, 'config', 'fixtures.yml')
       if File.exist? configuration_path
-        read_config_file configuration_path
+        read_configuration(::YAML.load_file configuration_path)
       end
 
       # Default to file output storage if one wasn't set up by the
@@ -40,8 +40,7 @@ module Fixtural
       end
     end
 
-    def read_config_file path
-      config = ::YAML.load_file path
+    def read_configuration config
       [
         'allow_tables',
         'disallow_tables',
