@@ -7,22 +7,40 @@ describe Fixtural do
 
     disallow_tables:
       - b
+
+    environments:
+      test:
+        output:
+          store: 'local'
+          path:  'spec/data/output'
     END
+  end
+
+  before :all do
+    ENV['FIXTURAL_ENV'] = 'test'
   end
 
   it 'reads configuration' do
     config_hash = YAML.load config_string
-    Fixtural.read_configuration config_hash
+    expect {
+      Fixtural.read_configuration config_hash
+    }.to output.to_stdout
     # Extract the Fixtural::Configuration instance
-    expect(Fixtural.configuration).to be
+    expect(Fixtural.configuration).to be_a(Fixtural::Configuration)
   end
 
   describe 'configuration' do
     subject { Fixtural.configuration }
 
-    it 'correctly read configuration' do
+    it 'correctly read allow/disallow' do
       expect(subject.allow_tables).to eql(['a'])
       expect(subject.disallow_tables).to eql(['b'])
+    end
+
+    it 'correctly read output' do
+      output = subject.output_store
+      expect(output).to be_a(Fixtural::FileOutputStore)
+      expect(output.root).to eql('spec/data/output')
     end
   end
 

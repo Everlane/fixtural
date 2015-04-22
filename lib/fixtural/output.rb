@@ -12,6 +12,7 @@ module Fixtural
   end
 
   class FileOutputStore < OutputStore
+    attr_reader :root
     def initialize root
       @root = root
     end
