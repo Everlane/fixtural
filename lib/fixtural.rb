@@ -44,7 +44,8 @@ module Fixtural
       [
         'allow_tables',
         'disallow_tables',
-        'download_directory'
+        'download_directory',
+        'output_format'
       ].each do |prop|
         if config[prop]
           @configuration.send (prop+'=').to_sym, config[prop]

@@ -29,16 +29,25 @@ module Fixtural
 
       total = tables.length
       puts "Downloading #{total.to_s} tables:"
-      # Setup the output store and write tables to it
-      destination_store = @configuration.destination_store
+
+      # Setup the output store and the writer for the chosen output format
+      output_store        = @configuration.output_store
+      output_writer_klass = Fixtural.output_writer_for_name @configuration.output_format
+
       tables.each_with_index do |table, index|
         progressbar = ProgressBar.create(
           format: "- #{table} (#{(index+1).to_s}/#{total.to_s}) (%j%%)"
         )
-        name = "#{table}.yml"
-        destination_store.open(name) do |fd|
-          writer = ::Fixtural::YAMLOutputWriter.new(fd)
+        extension = output_writer_klass.extension
+        name = "#{table}.#{extension}"
+
+        columns = get_columns table
+
+        output_store.open(name) do |fd|
+          writer = output_writer_klass.new fd, table, columns
+
           download_table table, writer, progressbar
+
           writer.done
         end
       end
@@ -67,14 +76,16 @@ module Fixtural
       return tables
     end
 
+    def get_columns table
+      @adapter.query_table_columns table
+    end
+
     def download_table table, output_writer, progressbar
       results = @adapter.query_table(table)
       progressbar.total = results.count
       index = 0
       results.each do |row|
-        data = {}
-        data[index] = row
-        output_writer.write data
+        output_writer.write row, index
 
         index += 1
         progressbar.increment

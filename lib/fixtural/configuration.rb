@@ -2,7 +2,7 @@
 module Fixtural
   class Configuration
     # Controlling where the output goes
-    attr_accessor :destination_store, :download_directory
+    attr_accessor :output_store, :download_directory, :output_format
 
     # Properties for downloading from the remote
     attr_accessor :remote_db, :download_tables,
@@ -18,6 +18,11 @@ module Fixtural
     def print
       puts 'Downloading:'
       print_properties DOWNLOAD_PROPERTIES
+    end
+
+    def initialize
+      # Set defaults
+      self.output_format = 'yaml'
     end
 
     private
