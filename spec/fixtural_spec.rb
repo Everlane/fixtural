@@ -16,8 +16,8 @@ describe Fixtural do
     @db = SQLite3::Database.new db_path
     @db.execute 'CREATE TABLE rows (num int);'
 
-    (1..3).each do |i|
-      @db.execute "INSERT INTO rows (num) VALUES (#{i});"
+    (1..3).each do |value|
+      @db.execute 'INSERT INTO rows (num) VALUES (?);', value
     end
 
     rows_path = File.expand_path('../data/output/rows.yml', __FILE__)
