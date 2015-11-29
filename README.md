@@ -23,21 +23,20 @@ You'll then have some helpful Rake tasks to download a database into your fixtur
 ```bash
 # Downloading a database
 REMOTE_DB=mysql://username:password@host/db rake fixtural:download
+
 # Fixtures will now be in test/fixtures/ or spec/fixtures/, whichever
 # is found first.
 ```
 
-## TODO
+## To-do
 
-- Additional database adapters (SQLite, PostgreSQL)
+- Additional database adapters (MySQL (pull request [#1](https://github.com/Everlane/fixtural/pull/1)), PostgreSQL)
 - Downloading fixtures from remote (ie. admin downloads production DB to S3, then users download from S3 to local)
 - Multi-environment support (for the above, so you can do `FIXTURAL_ENV=admin` for privileged downloading)
 
-### Contributing
+## Contributing
 
-1. Fork it (https://github.com/[my-github-username]/fixtural/fork)
-2. Create your feature branch (`git checkout -b my-new-feature`)
-3. Commit your changes (`git commit -am 'Add some feature'`)
-4. Push to the branch (`git push origin my-new-feature`)
-5. Create a pull request
-
+1. Fork it
+2. Create a branch and implement your changes
+3. Push to the branch
+4. Create a [pull request](https://github.com/Everlane/fixtural/pull/new)
