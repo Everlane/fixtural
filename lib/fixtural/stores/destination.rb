@@ -101,7 +101,7 @@ module Fixtural
     end
 
     # Write a given `object` to the fixture output stream.
-    def write row, _index
+    def write row, index
       # Rails' fixture format has each row be a hash mapping the index
       # to the row data hash
       object = {index => row}

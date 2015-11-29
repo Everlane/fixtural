@@ -30,6 +30,7 @@ Gem::Specification.new do |spec|
   spec.add_development_dependency 'rake',               '~> 10.0'
   spec.add_development_dependency 'rspec-core',         '~> 3.4'
   spec.add_development_dependency 'rspec-expectations', '~> 3.4'
+  spec.add_development_dependency 'pry',                '~> 0.10'
 
   spec.add_dependency 'fog',              '~> 1.29.0'
   spec.add_dependency 'psych',            '~> 2.0'
