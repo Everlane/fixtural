@@ -26,12 +26,12 @@ Gem::Specification.new do |spec|
   spec.executables   = spec.files.grep(%r{^exe/}) { |f| File.basename(f) }
   spec.require_paths = ["lib"]
 
-  spec.add_development_dependency 'bundler', '~> 1.9'
-  spec.add_development_dependency 'rake', '~> 10.0'
-  spec.add_development_dependency 'rspec-core', '~> 3.2'
-  spec.add_development_dependency 'rspec-expectations', '~> 3.2'
+  spec.add_development_dependency 'bundler',            '~> 1.9'
+  spec.add_development_dependency 'rake',               '~> 10.0'
+  spec.add_development_dependency 'rspec-core',         '~> 3.4'
+  spec.add_development_dependency 'rspec-expectations', '~> 3.4'
 
-  spec.add_dependency 'fog', '~> 1.29.0'
-  spec.add_dependency 'psych', '~> 2.0'
+  spec.add_dependency 'fog',              '~> 1.29.0'
+  spec.add_dependency 'psych',            '~> 2.0'
   spec.add_dependency 'ruby-progressbar', '~> 1.7.5'
 end
