@@ -11,10 +11,14 @@ describe Fixtural do
       File.unlink db_path
     end
     FileUtils.touch db_path
+
     # Then actually setup the database
     @db = SQLite3::Database.new db_path
     @db.execute 'CREATE TABLE rows (num int);'
-    @db.execute 'INSERT INTO rows (num) VALUES (1), (2), (3);'
+
+    (1..3).each do |i|
+      @db.execute "INSERT INTO rows (num) VALUES (#{i});"
+    end
 
     rows_path = File.expand_path('../data/output/rows.yml', __FILE__)
     File.unlink(rows_path) if File.exist? rows_path
