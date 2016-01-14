@@ -15,7 +15,7 @@ module Fixtural
 
   class << self
     attr_reader :configuration
-    
+
     def infer_configuration
       pwd = Rake.application.original_dir
 

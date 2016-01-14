@@ -15,17 +15,16 @@ output:
 #   access_key_id: 'foo'
 #   secret_access_key: 'bar'
 #   path: 'fixtures'
-# 
+#
 # environments:
 #   # remote DB -> S3 fixtures
 #   admin:
 #     # `input` will be supplied by `REMOTE_DB` environment variable
 #     output: *shared_s3
-# 
+#
 #   # S3 -> local fixtures files
 #   default:
 #     input: *shared_s3
 #     output:
 #       store: local
 #       path: 'test/fixtures'
-

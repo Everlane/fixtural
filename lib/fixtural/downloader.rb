@@ -109,4 +109,3 @@ module Fixtural
   end# FileDownloader
 
 end# Fixtural
-

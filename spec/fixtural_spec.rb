@@ -46,4 +46,3 @@ describe Fixtural do
     expect(data[2]).to eql({'num' => 3})
   end
 end
-
