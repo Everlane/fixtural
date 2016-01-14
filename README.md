@@ -28,6 +28,21 @@ REMOTE_DB=mysql://username:password@host/db rake fixtural:download
 # is found first.
 ```
 
+## Configuration
+
+Fixtural supports three ways for downloading fixture data:
+
+1. Tables from any accessible database server
+2. Tables-as-files from the filesystem
+3. Tables-as-files from Amazon S3
+
+It can then output that downloaded data to:
+
+1. The local filesystem
+2. Amazon S3
+
+Downloaded data is currently only available in the S3 format, however MySQL-compatible SQL output is in development.
+
 ## To-do
 
 - Additional database adapters (MySQL (pull request [#1](https://github.com/Everlane/fixtural/pull/1)), PostgreSQL)
