@@ -30,13 +30,13 @@ module Fixtural
       total = tables.length
       puts "Downloading #{total.to_s} tables:"
       # Setup the output store and write tables to it
-      output_store = @configuration.output_store
+      destination_store = @configuration.destination_store
       tables.each_with_index do |table, index|
         progressbar = ProgressBar.create(
           format: "- #{table} (#{(index+1).to_s}/#{total.to_s}) (%j%%)"
         )
         name = "#{table}.yml"
-        output_store.open(name) do |fd|
+        destination_store.open(name) do |fd|
           writer = ::Fixtural::YAMLOutputWriter.new(fd)
           download_table table, writer, progressbar
           writer.done
@@ -82,15 +82,15 @@ module Fixtural
     end
   end# DatabaseDownloader
 
-
+  # Downloads files from `source_store` into `destination_store`
   class FileDownloader
-    def initialize input_store, output_store
-      @input  = input_store
-      @output = output_store
+    def initialize source_store, destination_store
+      @source      = source_store
+      @destination = destination_store
     end
 
     def run!
-      files = @input.files
+      files = @source.files
 
       total = files.length
       index = 0
@@ -99,8 +99,8 @@ module Fixtural
         # Skip files not ending with .yml
         next unless name =~ /\.yml$/
         # Then copy from the input store to the output store
-        @output.open name do |fd|
-          fd.write @input.read(name)
+        @destination.open name do |fd|
+          fd.write @source.read(name)
         end
         puts "- #{name} (#{(index+1).to_s}/#{total.to_s})"
         index += 1

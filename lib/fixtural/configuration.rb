@@ -2,14 +2,14 @@
 module Fixtural
   class Configuration
     # Controlling where the output goes
-    attr_accessor :output_store, :download_directory
+    attr_accessor :destination_store, :download_directory
 
     # Properties for downloading from the remote
     attr_accessor :remote_db, :download_tables,
                   :allow_tables, :disallow_tables
 
     # Or for downloading from a filesystem
-    attr_accessor :input_store
+    attr_accessor :source_store
 
     DOWNLOAD_PROPERTIES = [
       ['Remote database', 'remote_db'],

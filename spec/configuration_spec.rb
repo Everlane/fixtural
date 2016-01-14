@@ -10,7 +10,7 @@ describe Fixtural do
 
     environments:
       test:
-        output:
+        destination:
           store: 'local'
           path:  'spec/data/output'
     END
@@ -37,12 +37,11 @@ describe Fixtural do
       expect(subject.disallow_tables).to eql(['b'])
     end
 
-    it 'correctly read output' do
-      output = subject.output_store
-      expect(output).to be_a(Fixtural::FileOutputStore)
+    it 'correctly read configured destination' do
+      output = subject.destination_store
+      expect(output).to be_a(Fixtural::FileDestinationStore)
       expect(output.root).to eql('spec/data/output')
     end
   end
 
 end
-

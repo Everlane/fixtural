@@ -1,6 +1,6 @@
 
 module Fixtural
-  class InputStore
+  class SourceStore
     def files
       raise NotImplementedError
     end
@@ -9,7 +9,7 @@ module Fixtural
     end
   end
 
-  class FileInputStore < InputStore
+  class FileSourceStore < SourceStore
     def initialize path
       @path = path
     end
@@ -21,7 +21,7 @@ module Fixtural
     end
   end
 
-  class S3InputStore < InputStore
+  class S3SourceStore < SourceStore
     def initialize opts
       @path       = opts.delete 'path'
       @connection = Fixtural.create_s3_storage opts
@@ -42,4 +42,3 @@ module Fixtural
     end
   end
 end
-

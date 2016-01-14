@@ -6,7 +6,7 @@ disallow_tables:
   - skip
 
 # Simple output
-output:
+destination:
   store: local
   path:  'test/fixtures'
 
@@ -24,7 +24,7 @@ output:
 #
 #   # S3 -> local fixtures files
 #   default:
-#     input: *shared_s3
-#     output:
+#     source: *shared_s3
+#     destination:
 #       store: local
 #       path: 'test/fixtures'
