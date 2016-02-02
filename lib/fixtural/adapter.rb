@@ -53,13 +53,16 @@ module Fixtural
       path = str.sub /^sqlite3:\/\//, ''
       @path = path
     end
+
     def connect
       @client = SQLite3::Database.new @path
     end
+
     def guess_tables
       results = @client.execute "SELECT name FROM sqlite_master WHERE type = 'table';"
       return results.to_a.map {|r| r[0] }
     end
+
     def query_table table
       rows = @client.execute2("SELECT * FROM #{table};").to_a
       columns = rows.shift
@@ -71,6 +74,7 @@ module Fixtural
         }
       end
     end
+
     def query_table_columns table
       rows = @client.execute2("PRAGMA table_info(#{table});").to_a
       columns = rows.shift
@@ -84,7 +88,6 @@ module Fixtural
   end
 
   class MySQLAdapter < Adapter
-
     def initialize downloader, uri
       @downloader = downloader
       @uri        = uri
@@ -114,4 +117,3 @@ module Fixtural
     end
   end# MySQLAdapter
 end
-

@@ -3,4 +3,3 @@ require 'fixtural'
 
 require 'pry'
 require 'sqlite3'
-require 'pry'
