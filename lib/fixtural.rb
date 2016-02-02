@@ -6,8 +6,8 @@ require 'fixtural/version'
 require 'fixtural/adapter'
 require 'fixtural/configuration'
 require 'fixtural/downloader'
-require 'fixtural/stores/source'
-require 'fixtural/stores/destination'
+require 'fixtural/stores/input'
+require 'fixtural/stores/output'
 
 module Fixtural
   # Initialize module instance variables
@@ -35,8 +35,8 @@ module Fixtural
 
       # Default to file destination store if one wasn't set up by the
       # config file
-      unless @configuration.destination_store
-        @configuration.destination_store = FileDestinationStore.new @configuration.download_directory
+      unless @configuration.output_store
+        @configuration.output_store = FileOutputStore.new @configuration.download_directory
       end
     end
 
@@ -44,7 +44,8 @@ module Fixtural
       [
         'allow_tables',
         'disallow_tables',
-        'download_directory'
+        'download_directory',
+        'output_format'
       ].each do |prop|
         if config[prop]
           @configuration.send (prop+'=').to_sym, config[prop]
@@ -55,7 +56,7 @@ module Fixtural
       # override that with environment-specific output store
       # configurations below.
       if config['destination']
-        configure_destination_store config['destination']
+        configure_output_store config['destination']
       end
 
       env = ENV['FIXTURAL_ENV']
@@ -63,31 +64,31 @@ module Fixtural
       if env && environments
         current_env = environments[env]
         if current_env
-          configure_destination_store(current_env['destination']) if current_env['destination']
-          configure_source_store(current_env['source']) if current_env['source']
+          configure_output_store(current_env['destination']) if current_env['destination']
+          configure_input_store(current_env['source']) if current_env['source']
         end
         puts "Using environment '#{env}'"
       end
     end
 
-    def configure_destination_store destination_config
-      store = destination_config['store']
+    def configure_output_store output_config
+      store = output_config['store']
       case store
       when 'local'
-        @configuration.destination_store = FileDestinationStore.new destination_config['path']
+        @configuration.output_store = FileOutputStore.new output_config['path']
       when 'S3'
-        @configuration.destination_store = S3DestinationStore.new destination_config
+        @configuration.output_store = S3OutputStore.new output_config
       else
         raise "Don't know how to configure destination store of type '#{store}'"
       end
     end
-    def configure_source_store source_config
-      store = source_config['store']
+    def configure_input_store input_config
+      store = input_config['store']
       case store
       when 'local'
-        @configuration.source_store = FileSourceStore.new source_config['path']
+        @configuration.input_store = FileInputStore.new input_config['path']
       when 'S3'
-        @configuration.source_store = S3SourceStore.new source_config
+        @configuration.input_store = S3InputStore.new input_config
       else
         raise "Don't know how to configure source store of type '#{store}'"
       end
@@ -100,10 +101,10 @@ module Fixtural
     def setup_downloader
       if @configuration.remote_db
         return DatabaseDownloader.new @configuration
-      elsif @configuration.source_store
+      elsif @configuration.input_store
         return FileDownloader.new(
-          @configuration.source_store,
-          @configuration.destination_store
+          @configuration.input_store,
+          @configuration.output_store
         )
       else
         raise 'No remote database or file store from which to download'

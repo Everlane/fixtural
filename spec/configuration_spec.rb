@@ -37,9 +37,9 @@ describe Fixtural do
       expect(subject.disallow_tables).to eql(['b'])
     end
 
-    it 'correctly read configured destination' do
-      output = subject.destination_store
-      expect(output).to be_a(Fixtural::FileDestinationStore)
+    it 'correctly read configured output' do
+      output = subject.output_store
+      expect(output).to be_a(Fixtural::FileOutputStore)
       expect(output.root).to eql('spec/data/output')
     end
   end

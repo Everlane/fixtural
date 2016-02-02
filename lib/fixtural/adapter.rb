@@ -33,6 +33,12 @@ module Fixtural
       raise NotImplementedError
     end
 
+    # Returns an `Enumerable` of `String`-likes with the column names of the
+    # given table
+    def query_table_columns table
+      raise NotImplementedError
+    end
+
     protected
       # Called by `guess_tables` to filter the resulting table list
       # according to `SKIP_TABLES`.
@@ -47,29 +53,41 @@ module Fixtural
       path = str.sub /^sqlite3:\/\//, ''
       @path = path
     end
+
     def connect
       @client = SQLite3::Database.new @path
     end
+
     def guess_tables
       results = @client.execute "SELECT name FROM sqlite_master WHERE type = 'table';"
       return results.to_a.map {|r| r[0] }
     end
+
     def query_table table
       rows = @client.execute2("SELECT * FROM #{table};").to_a
       columns = rows.shift
-      return rows.map {|row|
-        val = columns.each_with_index.inject({}) {|acc, pair|
-          key, index = pair
-          acc[key] = row[index]
+
+      rows.map do |row|
+        columns.each_with_index.inject({}) {|acc, (key, index)|
+          acc[key.to_sym] = row[index]
           acc
         }
-        val
-      }
+      end
+    end
+
+    def query_table_columns table
+      rows = @client.execute2("PRAGMA table_info(#{table});").to_a
+      columns = rows.shift
+
+      name_index = columns.index 'name'
+
+      raise RuntimeError, "Missing 'name' column in PRAGMA result" unless name_index
+
+      rows.map { |row| row[name_index] }
     end
   end
 
   class MySQLAdapter < Adapter
-
     def initialize downloader, uri
       @downloader = downloader
       @uri        = uri
@@ -99,4 +117,3 @@ module Fixtural
     end
   end# MySQLAdapter
 end
-

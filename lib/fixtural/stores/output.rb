@@ -4,14 +4,13 @@ require 'fog/core'
 require 'fog/aws'
 
 module Fixtural
-
-  class DestinationStore
+  class OutputStore
     def open path, &block
       raise NotImplementedError
     end
   end
 
-  class FileDestinationStore < DestinationStore
+  class FileOutputStore < OutputStore
     attr_reader :root
     def initialize root
       @root = root
@@ -26,7 +25,7 @@ module Fixtural
     end
   end
 
-  class S3DestinationStore < DestinationStore
+  class S3OutputStore < OutputStore
     def initialize opts
       @path       = opts.delete 'path'
       @connection = Fixtural.create_s3_storage opts
@@ -57,25 +56,55 @@ module Fixtural
     end# open
   end# S3OutputStore
 
+  def self.output_writer_for_name name
+    case name
+    when 'yaml'
+      YAMLOutputWriter
+    when 'mysql2'
+      MySQL2OutputWriter
+    else
+      raise RuntimeError, "Output writer not found: '#{name}'"
+    end
+  end
 
   class OutputWriter
-    def write object
+    def initialize io, table_name, columns
       raise NotImplementedError
     end
+
+    # Return the extension to use for the file written by this output-writer
+    def self.extension
+      raise NotImplementedError
+    end
+
+    # Write a key-value object (hash-like) to the output
+    def write object, index
+      raise NotImplementedError
+    end
+
+    # Called once-and-only-once after all items have been written
     def done
       raise NotImplementedError
     end
   end
 
   class YAMLOutputWriter < OutputWriter
-    def initialize io
+    def initialize io, _table_name, _columns
       @io = io
       @io.write "---\n"
       @checked = false
     end
 
+    def self.extension
+      'yml'
+    end
+
     # Write a given `object` to the fixture output stream.
-    def write object
+    def write row, index
+      # Rails' fixture format has each row be a hash mapping the index
+      # to the row data hash
+      object = {index => row}
+
       # Convert the index-object to YAML
       data = object.to_yaml
       # Check conformance of the objects if we haven't already
@@ -100,4 +129,60 @@ module Fixtural
       end
 
   end# YAMLOutputWriter
+
+  class MySQL2OutputWriter < OutputWriter
+    BATCH_SIZE = 20
+
+    def initialize io, table_name, columns
+      @io         = io
+      @table_name = table_name
+      @columns    = columns
+
+      self.class.require_sequel
+
+      # Create non-connected SQL adapter
+      @database = ::Sequel.mysql2 :preconnect => false
+
+      @batch = []
+    end
+
+    def self.extension
+      'sql'
+    end
+    def self.require_sequel
+      require 'sequel'
+    end
+
+    def write row, _index
+      @batch << row
+
+      flush if @batch.length >= BATCH_SIZE
+    end
+
+    def done
+      flush if @batch.length > 0
+    end
+
+    private
+
+    def flush
+      rows = @batch
+
+      columns = @columns.map &:to_sym
+
+      # `rows` is an array of hashes, we need to convert it into an array
+      # of arrays for generating the INSERT
+      rows.map! do |row|
+        columns.map { |column| row[column]  }
+      end
+
+      sql_statements = @database[@table_name.to_sym].multi_insert_sql columns, rows
+
+      @io.write sql_statements[0]
+      @io.write ";\n"
+
+      @batch = []
+    end
+
+  end
 end# Fixtural

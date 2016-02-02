@@ -16,8 +16,8 @@ describe Fixtural do
     @db = SQLite3::Database.new db_path
     @db.execute 'CREATE TABLE rows (num int);'
 
-    (1..3).each do |i|
-      @db.execute "INSERT INTO rows (num) VALUES (#{i});"
+    (1..3).each do |value|
+      @db.execute 'INSERT INTO rows (num) VALUES (?);', value
     end
 
     rows_path = File.expand_path('../data/output/rows.yml', __FILE__)
@@ -34,8 +34,10 @@ describe Fixtural do
     Dir.chdir data_path do
       output = `REMOTE_DB=sqlite3://database.sqlite rake fixtural:download`
     end
-    expect(output).not_to be nil
-    expect(output).to include 'Downloading 1 tables:'
+
+    # Check that it exited without error and outputted something sensible
+    expect($?).to eq(0)
+    expect(output).to include('Downloading 1 tables:')
   end
 
   it 'produces a fixtures file' do
@@ -45,8 +47,8 @@ describe Fixtural do
     data = YAML.load_file rows_path
     # Check that it produced the right ordering of rows
     expect(data.keys).to eql([0, 1, 2])
-    expect(data[0]).to eql({'num' => 1})
-    expect(data[1]).to eql({'num' => 2})
-    expect(data[2]).to eql({'num' => 3})
+    expect(data[0]).to eql({:num => 1})
+    expect(data[1]).to eql({:num => 2})
+    expect(data[2]).to eql({:num => 3})
   end
 end

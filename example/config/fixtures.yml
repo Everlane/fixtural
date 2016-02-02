@@ -1,3 +1,4 @@
+output_format: mysql2
 
 allow_tables:
   - rows

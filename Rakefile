@@ -1,4 +1,4 @@
-require "bundler/gem_tasks"
+require 'bundler/gem_tasks'
 
-# Make Travis happy
-task :default do; end
+# No-op to make Travis CI happy
+task 'default'
