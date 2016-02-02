@@ -93,15 +93,15 @@ module Fixtural
     end
   end# DatabaseDownloader
 
-  # Downloads files from `source_store` into `destination_store`
+  # Downloads files from `source_store` into `output_store`
   class FileDownloader
-    def initialize source_store, destination_store
-      @source      = source_store
-      @destination = destination_store
+    def initialize input_store, output_store
+      @input  = input_store
+      @output = output_store
     end
 
     def run!
-      files = @source.files
+      files = @input.files
 
       total = files.length
       index = 0
@@ -110,8 +110,8 @@ module Fixtural
         # Skip files not ending with .yml
         next unless name =~ /\.yml$/
         # Then copy from the input store to the output store
-        @destination.open name do |fd|
-          fd.write @source.read(name)
+        @output.open name do |fd|
+          fd.write @input.read(name)
         end
         puts "- #{name} (#{(index+1).to_s}/#{total.to_s})"
         index += 1

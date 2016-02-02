@@ -4,14 +4,13 @@ require 'fog/core'
 require 'fog/aws'
 
 module Fixtural
-
-  class DestinationStore
+  class OutputStore
     def open path, &block
       raise NotImplementedError
     end
   end
 
-  class FileDestinationStore < DestinationStore
+  class FileOutputStore < OutputStore
     attr_reader :root
     def initialize root
       @root = root
@@ -26,7 +25,7 @@ module Fixtural
     end
   end
 
-  class S3DestinationStore < DestinationStore
+  class S3OutputStore < OutputStore
     def initialize opts
       @path       = opts.delete 'path'
       @connection = Fixtural.create_s3_storage opts
